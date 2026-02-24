@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+@plugin "daisyui" {
+  themes: forest --default, dark --prefersdark, light;
+}
+
+/* Portfolio-like stronger green accents across selected themes */
+[data-theme="forest"],
+[data-theme="light"] {
+  --color-primary: rgb(31, 184, 84);
+  --color-primary-content: oklch(15% 0.03 147);
+  --color-success: oklch(73% 0.23 147);
+  --color-success-content: oklch(15% 0.03 147);
+}
