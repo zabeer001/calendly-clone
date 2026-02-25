@@ -12,4 +12,9 @@ class FrontendController extends Controller
     {
         return Inertia::render('home/HomePage');
     }
+
+    public function signIn(): Response
+    {
+        return Inertia::render('auth/SignInPage');
+    }
 }

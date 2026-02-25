@@ -1,5 +1,4 @@
 import React from 'react';
-import FrontendLayout from '../../layouts/FrontendLayout';
 
 const companies = [
     { name: 'Northlane Digital', tag: 'Web + AI', score: '94%' },
@@ -9,9 +8,7 @@ const companies = [
 
 function HomePage() {
     return (
-        <FrontendLayout>
- 
-            <section className="mx-auto mt-20 max-w-4xl text-center">
+        <section className="mx-auto mt-20 max-w-4xl text-center">
                 <div className="badge badge-success badge-outline mb-6 p-4 text-xs font-medium">
                     AI-driven company matching platform
                 </div>
@@ -65,8 +62,7 @@ function HomePage() {
                         </div>
                     ))}
                 </div>
-            </section>
-        </FrontendLayout>
+        </section>
     );
 }
 
