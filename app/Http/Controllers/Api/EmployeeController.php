@@ -14,6 +14,11 @@ use Illuminate\Validation\Rule;
 
 class EmployeeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth:api', 'role:admin,superadmin']);
+    }
+
     /**
      * Display a listing of the resource (READ - Index).
      */

@@ -16,7 +16,7 @@ const projectRows = [
 
 const activityRows = [
     { text: 'New lead added from landing page', time: '5m ago' },
-    { text: 'Rimel Services proposal sent', time: '22m ago' },
+    { text: 'Services proposal sent', time: '22m ago' },
     { text: 'Quarterly report exported', time: '1h ago' },
     { text: 'User role updated to admin', time: '2h ago' },
 ];

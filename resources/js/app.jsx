@@ -13,7 +13,7 @@ const frontendPages = import.meta.glob('./frontend/pages/**/*.jsx');
 const backendPages = import.meta.glob('./backend/pages/**/*.jsx');
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: async (name) => {
         try {
             const page = await resolvePageComponent(`./frontend/pages/${name}.jsx`, frontendPages);

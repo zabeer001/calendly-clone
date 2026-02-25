@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Http\Controllers\Api\Booking\Services;
+
+use App\Models\Booking;
+use Illuminate\Http\JsonResponse;
+
+class BookingShowService
+{
+    public function handle(Booking $booking): JsonResponse
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => $booking,
+        ]);
+    }
+}

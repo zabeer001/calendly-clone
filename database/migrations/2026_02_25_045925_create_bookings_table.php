@@ -13,21 +13,20 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-                  $table->foreignId('host_user_id')->nullable()->after('id')->constrained('users')->nullOnDelete();
-            $table->string('event_type', 120)->after('host_user_id');
-            $table->string('title', 160)->after('event_type');
-            $table->string('guest_name', 120)->after('title');
-            $table->string('guest_email')->after('guest_name')->index();
-            $table->string('guest_phone', 30)->nullable()->after('guest_email');
-            $table->string('timezone', 80)->after('guest_phone');
-            $table->timestamp('start_at')->after('timezone');
-            $table->timestamp('end_at')->after('start_at');
-            $table->unsignedSmallInteger('duration_minutes')->after('end_at');
-            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending')->after('duration_minutes')->index();
-            $table->text('notes')->nullable()->after('status');
-            $table->text('cancel_reason')->nullable()->after('notes');
-            $table->timestamp('cancelled_at')->nullable()->after('cancel_reason');
-            $table->index(['start_at', 'end_at']);
+            $table->foreignId('host_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('event_type', 120);
+            $table->string('title', 160);
+            $table->string('guest_name', 120);
+            $table->string('guest_email')->index();
+            $table->string('guest_phone', 30)->nullable();
+            $table->string('timezone', 80);
+            $table->timestamp('start_at');
+            $table->timestamp('end_at')->nullable();
+            $table->unsignedSmallInteger('duration_minutes')->nullable();
+            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending')->index();
+            $table->text('notes')->nullable();
+            $table->text('cancel_reason')->nullable();
+            $table->timestamp('cancelled_at')->nullable();
             $table->timestamps();
         });
     }

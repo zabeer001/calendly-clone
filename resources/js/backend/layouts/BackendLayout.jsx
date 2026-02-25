@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { clearSession, getAccessToken, refreshToken, apiRequest } from '../../shared/apiClient';
 import Footer from './Footer';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -7,26 +8,34 @@ function BackendLayout({ children }) {
     const [theme, setTheme] = useState('forest');
     const role = useMemo(() => localStorage.getItem('role') || 'admin', []);
 
-    const signOut = async () => {
-        const token = localStorage.getItem('access_token');
+    useEffect(() => {
+        const bootAuth = async () => {
+            const token = getAccessToken();
 
-        try {
-            if (token) {
-                await fetch('/api/signout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+            if (!token) {
+                window.location.href = '/sign-in';
+                return;
             }
+
+            try {
+                await refreshToken();
+            } catch (error) {
+                clearSession();
+                window.location.href = '/sign-in';
+            }
+        };
+
+        bootAuth();
+    }, []);
+
+    const signOut = async () => {
+        try {
+            await apiRequest('/api/signout', { method: 'POST', auth: true });
         } catch (error) {
             console.error('Sign out request failed:', error);
         } finally {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('role');
-            window.location.href = '/sign-in';
+            clearSession();
+            window.location.href = '/';
         }
     };
 

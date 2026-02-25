@@ -1,19 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Auth;
 
-use App\Http\Controllers\Api\Concerns\ApiResponse;
+use App\Http\Controllers\Api\Auth\Services\AuthRefreshService;
+use App\Http\Controllers\Api\Auth\Services\AuthSigninService;
+use App\Http\Controllers\Api\Auth\Services\AuthSignoutService;
 use App\Http\Controllers\Controller;
-use App\Services\Auth\RefreshTokenService;
-use App\Services\Auth\SignInService;
-use App\Services\Auth\SignOutService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Throwable;
 
 class AuthController extends Controller
 {
-    use ApiResponse;
-
     public function __construct()
     {
         $this->middleware('auth:api')->only(['refresh', 'signout']);
@@ -53,24 +50,9 @@ class AuthController extends Controller
      *     @OA\Response(response=422, description="Validation error")
      * )
      */
-    public function signin(Request $request, SignInService $signInService)
+    public function signin(Request $request, AuthSigninService $service): JsonResponse
     {
-        
-        
-        try {
-            $credentials = $request->validate([
-                'email' => ['required', 'email'],
-                'password' => ['required', 'string'],
-            ]);
-
-            $payload = $signInService($credentials);
-
-            return $this->successResponse($payload, 'Signed in successfully.');
-        } catch (Throwable $e) {
-            report($e);
-
-            return $this->errorResponse('Failed to sign in.', 401);
-        }
+        return $service->handle($request);
     }
 
 
@@ -94,17 +76,9 @@ class AuthController extends Controller
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
-    public function refresh(RefreshTokenService $refreshTokenService)
+    public function refresh(AuthRefreshService $service): JsonResponse
     {
-        try {
-            $payload = $refreshTokenService();
-
-            return $this->successResponse($payload, 'Token refreshed successfully.');
-        } catch (Throwable $e) {
-            report($e);
-
-            return $this->errorResponse('Failed to refresh token.', 401);
-        }
+        return $service->handle();
     }
 
     //signout
@@ -124,17 +98,9 @@ class AuthController extends Controller
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
-    public function signout(SignOutService $signOutService)
+    public function signout(AuthSignoutService $service): JsonResponse
     {
-        try {
-            $message = $signOutService();
-
-            return $this->successResponse(null, $message);
-        } catch (Throwable $e) {
-            report($e);
-
-            return $this->errorResponse('Failed to sign out.', 500);
-        }
+        return $service->handle();
     }
 
     //frontend

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiRequest, setAccessToken, setRole } from '../../../shared/apiClient';
 
 function SignInPage() {
     const [email, setEmail] = useState('');
@@ -13,53 +14,34 @@ function SignInPage() {
         setMessage('');
 
         try {
-            const response = await fetch('/api/signin', {
+            const payload = await apiRequest('/api/signin', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-                body: JSON.stringify({
+                body: {
                     email,
                     password,
                     remember_me: rememberMe,
-                }),
+                },
             });
 
-            const data = await response.json();
+            const accessToken = payload?.data?.access_token;
+            const user = payload?.data?.user;
 
-            if (!response.ok) {
-                if (response.status === 422 && data?.errors) {
-                    const firstError = Object.values(data.errors)?.[0]?.[0];
-                    setMessage(firstError || 'Validation failed.');
-                } else if (response.status === 401 || response.status === 400) {
-                    setMessage(
-                        data?.message || 'Authentication failed. Please check your credentials.',
-                    );
-                } else {
-                    setMessage('An unknown error occurred on the server.');
-                }
+            setAccessToken(accessToken);
+            setRole(user?.role);
 
-                setPassword('');
-                return;
-            }
-
-            const accessToken = data?.data?.access_token;
-            const user = data?.data?.user;
-
-            if (accessToken) {
-                localStorage.setItem('access_token', accessToken);
-            }
-
-            if (user?.role) {
-                localStorage.setItem('role', user.role);
-            }
-
-            setMessage(data?.message || 'Signed in successfully.');
+            setMessage(payload?.message || 'Signed in successfully.');
             window.location.href = '/dashbaord';
         } catch (error) {
-            console.error('Network or parsing error:', error);
-            setMessage('Could not connect to the server. Please check your network.');
+            if (error?.status === 422 && error?.payload?.errors) {
+                const firstError = Object.values(error.payload.errors)?.[0]?.[0];
+                setMessage(firstError || 'Validation failed.');
+            } else if (error?.status === 401 || error?.status === 400) {
+                setMessage(error?.message || 'Authentication failed. Please check your credentials.');
+            } else {
+                setMessage('Could not connect to the server. Please try again.');
+            }
+
+            setPassword('');
         } finally {
             setIsLoading(false);
         }
