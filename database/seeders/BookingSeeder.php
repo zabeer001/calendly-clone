@@ -24,10 +24,12 @@ class BookingSeeder extends Seeder
                 'host_user_id' => $host?->id,
                 'event_type' => 'Discovery Call',
                 'title' => 'Project Discovery Session',
-                'guest' => [
-                    'name' => 'Alice Johnson',
-                    'email' => 'alice.johnson@example.com',
-                    'phone' => '+1-202-555-0110',
+                'guests' => [
+                    [
+                        'name' => 'Alice Johnson',
+                        'email' => 'alice.johnson@example.com',
+                        'phone' => '+1-202-555-0110',
+                    ],
                 ],
                 'timezone' => 'America/New_York',
                 'start_at' => $baseStart->copy(),
@@ -42,10 +44,12 @@ class BookingSeeder extends Seeder
                 'host_user_id' => $host?->id,
                 'event_type' => 'Technical Interview',
                 'title' => 'Backend Engineer Interview',
-                'guest' => [
-                    'name' => 'Bob Smith',
-                    'email' => 'bob.smith@example.com',
-                    'phone' => '+1-202-555-0139',
+                'guests' => [
+                    [
+                        'name' => 'Bob Smith',
+                        'email' => 'bob.smith@example.com',
+                        'phone' => '+1-202-555-0139',
+                    ],
                 ],
                 'timezone' => 'America/Chicago',
                 'start_at' => $baseStart->copy()->addHours(2),
@@ -60,10 +64,12 @@ class BookingSeeder extends Seeder
                 'host_user_id' => $host?->id,
                 'event_type' => 'Consultation',
                 'title' => 'Business Consultation',
-                'guest' => [
-                    'name' => 'Charlie Brown',
-                    'email' => 'charlie.brown@example.com',
-                    'phone' => null,
+                'guests' => [
+                    [
+                        'name' => 'Charlie Brown',
+                        'email' => 'charlie.brown@example.com',
+                        'phone' => null,
+                    ],
                 ],
                 'timezone' => 'America/Los_Angeles',
                 'start_at' => $baseStart->copy()->subDay(),
@@ -78,10 +84,12 @@ class BookingSeeder extends Seeder
                 'host_user_id' => $host?->id,
                 'event_type' => 'Support Session',
                 'title' => 'Urgent Support Call',
-                'guest' => [
-                    'name' => 'Diana Prince',
-                    'email' => 'diana.prince@example.com',
-                    'phone' => '+1-202-555-0147',
+                'guests' => [
+                    [
+                        'name' => 'Diana Prince',
+                        'email' => 'diana.prince@example.com',
+                        'phone' => '+1-202-555-0147',
+                    ],
                 ],
                 'timezone' => 'America/New_York',
                 'start_at' => $baseStart->copy()->addDays(2),
@@ -96,10 +104,12 @@ class BookingSeeder extends Seeder
                 'host_user_id' => $host?->id,
                 'event_type' => 'Demo',
                 'title' => 'Product Demo',
-                'guest' => [
-                    'name' => 'Ethan Hunt',
-                    'email' => 'ethan.hunt@example.com',
-                    'phone' => '+1-202-555-0177',
+                'guests' => [
+                    [
+                        'name' => 'Ethan Hunt',
+                        'email' => 'ethan.hunt@example.com',
+                        'phone' => '+1-202-555-0177',
+                    ],
                 ],
                 'timezone' => 'Europe/London',
                 'start_at' => $baseStart->copy()->addDays(3),
@@ -113,23 +123,27 @@ class BookingSeeder extends Seeder
         ];
 
         foreach ($bookings as $booking) {
-            $guestData = $booking['guest'];
-            unset($booking['guest']);
+            $guestDataList = $booking['guests'];
+            unset($booking['guests']);
 
-            $guest = Guest::updateOrCreate(
-                ['email' => $guestData['email']],
-                $guestData
-            );
-
-            $booking['guest_ids'] = [$guest->id];
-
-            Booking::updateOrCreate(
+            $bookingModel = Booking::updateOrCreate(
                 [
                     'title' => $booking['title'],
                     'start_at' => $booking['start_at'],
                 ],
                 $booking
             );
+
+            $guestIds = [];
+            foreach ($guestDataList as $guestData) {
+                $guest = Guest::updateOrCreate(
+                    ['email' => $guestData['email']],
+                    $guestData
+                );
+                $guestIds[] = $guest->id;
+            }
+
+            $bookingModel->guests()->sync($guestIds);
         }
     }
 }

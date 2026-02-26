@@ -2,52 +2,40 @@
 
 namespace App\Http\Controllers\Api\Booking\Services\Sahred\Guest;
 
-use App\Models\Booking;
 use App\Models\Guest;
-use Illuminate\Validation\ValidationException;
 
 class GuestPersistenceService implements GuestStorePersistenceInterface, GuestUpdatePersistenceInterface
 {
-    public function persistForStore(array $validated): int
+    public function persistForStore(array $validated): array
     {
-        $guest = Guest::query()->firstOrNew([
-            'email' => $validated['guest_email'],
-        ]);
-
-        $guest->name = $validated['guest_name'];
-        $guest->phone = $validated['guest_phone'] ?? null;
-        $guest->save();
-
-        return $guest->id;
+        return $this->upsertGuests($validated['guests']);
     }
 
-    public function persistForUpdate(array $validated, Booking $booking): ?int
+    public function persistForUpdate(array $validated): ?array
     {
-        $hasGuestInput = array_key_exists('guest_name', $validated)
-            || array_key_exists('guest_email', $validated)
-            || array_key_exists('guest_phone', $validated);
-
-        if (! $hasGuestInput) {
+        if (! array_key_exists('guests', $validated)) {
             return null;
         }
 
-        $existingGuestId = is_array($booking->guest_ids) ? ($booking->guest_ids[0] ?? null) : null;
-        $existingGuest = $existingGuestId ? Guest::find($existingGuestId) : null;
+        return $this->upsertGuests($validated['guests']);
+    }
 
-        $email = $validated['guest_email'] ?? $existingGuest?->email;
-        if (empty($email)) {
-            throw ValidationException::withMessages([
-                'guest_email' => ['The guest_email field is required when updating guest details.'],
+    private function upsertGuests(array $guests): array
+    {
+        $guestIds = [];
+
+        foreach ($guests as $guestData) {
+            $guest = Guest::query()->firstOrNew([
+                'email' => $guestData['email'],
             ]);
+
+            $guest->name = $guestData['name'];
+            $guest->phone = $guestData['phone'] ?? null;
+            $guest->save();
+
+            $guestIds[] = $guest->id;
         }
 
-        $guest = Guest::query()->firstOrNew(['email' => $email]);
-        $guest->name = $validated['guest_name'] ?? $existingGuest?->name ?? 'Guest';
-        $guest->phone = array_key_exists('guest_phone', $validated)
-            ? $validated['guest_phone']
-            : $existingGuest?->phone;
-        $guest->save();
-
-        return $guest->id;
+        return array_values(array_unique($guestIds));
     }
 }

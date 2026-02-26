@@ -4,7 +4,7 @@ import {
     deleteBooking,
     fetchBookings,
     getApiErrorMessage,
-} from './api/bookingApi';
+} from '../api/bookingApi';
 
 function BookingsPage() {
     const userRole = useMemo(() => localStorage.getItem('role') || 'user', []);
@@ -133,14 +133,15 @@ function BookingsPage() {
                                         <tr key={booking.id}>
                                             <td>{booking.title}</td>
                                             <td>
-                                                <div>{booking.guest_name}</div>
-                                                <div className="text-xs text-base-content/60">{booking.guest_email}</div>
+                                                <div className="text-xs text-base-content/60">
+                                                    {(booking.guests || []).map((guest) => guest.email).join(', ') || '-'}
+                                                </div>
                                             </td>
                                             <td>{new Date(booking.start_at).toLocaleString()}</td>
                                             <td className="uppercase">{booking.status}</td>
                                             <td>
                                                 <div className="flex gap-2">
-                                                    <Link href={`/bookings/${booking.id}/edit`} className="btn btn-xs btn-outline">Edit</Link>
+                                                    <Link href={`/bookings/${booking.uniq_id || booking.id}/edit`} className="btn btn-xs btn-outline">Edit</Link>
                                                     <button type="button" className="btn btn-xs btn-error btn-outline" onClick={() => onDelete(booking.id)}>Delete</button>
                                                 </div>
                                             </td>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Booking\Services;
 
 use App\Models\Booking;
-use App\Models\Guest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -11,28 +10,18 @@ class BookingIndexService
 {
     public function handle(Request $request): JsonResponse
     {
-        $query = Booking::query()->latest();
+        $query = Booking::query()->with(['guests:id,email'])->latest();
 
         if ($request->filled('search')) {
             $search = trim((string) $request->string('search'));
-            $guestIds = Guest::query()
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->limit(100)
-                ->pluck('id')
-                ->all();
 
-            $query->where(function ($q) use ($search, $guestIds) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('event_type', 'like', "%{$search}%");
-
-                if (! empty($guestIds)) {
-                    $q->orWhere(function ($guestQuery) use ($guestIds) {
-                        foreach ($guestIds as $guestId) {
-                            $guestQuery->orWhereJsonContains('guest_ids', $guestId);
-                        }
+                    ->orWhere('event_type', 'like', "%{$search}%")
+                    ->orWhereHas('guests', function ($guestQuery) use ($search) {
+                        $guestQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
                     });
-                }
 
                 if (ctype_digit($search)) {
                     $q->orWhere('id', (int) $search);
@@ -49,20 +38,10 @@ class BookingIndexService
         }
 
         if ($request->filled('guest_email')) {
-            $guestIds = Guest::query()
-                ->where('email', (string) $request->string('guest_email'))
-                ->pluck('id')
-                ->all();
-
-            if (empty($guestIds)) {
-                $query->whereRaw('1 = 0');
-            } else {
-                $query->where(function ($guestQuery) use ($guestIds) {
-                    foreach ($guestIds as $guestId) {
-                        $guestQuery->orWhereJsonContains('guest_ids', $guestId);
-                    }
-                });
-            }
+            $guestEmail = (string) $request->string('guest_email');
+            $query->whereHas('guests', function ($guestQuery) use ($guestEmail) {
+                $guestQuery->where('email', $guestEmail);
+            });
         }
 
         if ($request->filled('date_from')) {

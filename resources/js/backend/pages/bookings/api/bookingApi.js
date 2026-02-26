@@ -30,8 +30,8 @@ export async function fetchBookings({ status = '', search = '' } = {}) {
     return Array.isArray(payload?.data?.data) ? payload.data.data : [];
 }
 
-export async function fetchBookingById(id) {
-    const payload = await apiRequest(`/api/bookings/${id}`, { auth: true });
+export async function fetchBookingById(uniqId) {
+    const payload = await apiRequest(`/api/bookings/${uniqId}`, { auth: true });
     return payload?.data;
 }
 
@@ -42,8 +42,8 @@ export async function createBooking(form) {
     });
 }
 
-export async function updateBooking(id, form) {
-    return apiRequest(`/api/bookings/${id}`, {
+export async function updateBooking(uniqId, form) {
+    return apiRequest(`/api/bookings/${uniqId}`, {
         method: 'PUT',
         auth: true,
         body: normalizeBookingPayload(form),

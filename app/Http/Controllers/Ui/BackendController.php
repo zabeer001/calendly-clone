@@ -20,18 +20,18 @@ class BackendController extends Controller
 
     public function bookings(): Response
     {
-        return Inertia::render('bookings/BookingsPage');
+        return Inertia::render('bookings/index/BookingsPage');
     }
 
     public function bookingCreate(): Response
     {
-        return Inertia::render('bookings/CreateBookingPage');
+        return Inertia::render('bookings/create/CreateBookingPage');
     }
 
-    public function bookingEdit(int $id): Response
+    public function bookingEdit(string $uniqId): Response
     {
-        return Inertia::render('bookings/EditBookingPage', [
-            'bookingId' => $id,
+        return Inertia::render('bookings/edit/EditBookingPage', [
+            'bookingId' => $uniqId,
         ]);
     }
 

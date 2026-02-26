@@ -14,29 +14,25 @@ class BookingStoreService
     public function __construct(
         private GuestStorePersistenceInterface $guestPersistence,
         private BookingStoreValidation $bookingStoreValidation
-    )
-    {
-    }
+    ) {}
 
     public function handle(Request $request): JsonResponse
     {
         $validated = $this->bookingStoreValidation->validate($request);
 
         $booking = DB::transaction(function () use ($validated): Booking {
-            $guestId = $this->guestPersistence->persistForStore($validated);
+            $guestIds = $this->guestPersistence->persistForStore($validated);
 
             if (($validated['status'] ?? null) === 'cancelled' && empty($validated['cancelled_at'])) {
                 $validated['cancelled_at'] = now();
             }
 
-            unset($validated['guest_name'], $validated['guest_email'], $validated['guest_phone']);
-            $validated['guest_ids'] = [$guestId];
+            unset($validated['guests']);
 
             $booking = new Booking();
             $booking->host_user_id = $validated['host_user_id'] ?? null;
             $booking->event_type = $validated['event_type'];
             $booking->title = $validated['title'];
-            $booking->guest_ids = $validated['guest_ids'];
             $booking->timezone = $validated['timezone'];
             $booking->start_at = $validated['start_at'];
             $booking->end_at = $validated['end_at'] ?? null;
@@ -46,6 +42,7 @@ class BookingStoreService
             $booking->cancel_reason = $validated['cancel_reason'] ?? null;
             $booking->cancelled_at = $validated['cancelled_at'] ?? null;
             $booking->save();
+            $booking->guests()->sync($guestIds);
 
             return $booking;
         });

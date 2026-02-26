@@ -61,9 +61,9 @@ Why:
 
 ## Data Model Decisions
 
-- Booking stores `guest_ids` as JSON array.
+- Booking and Guest are many-to-many.
+- Pivot table: `booking_guest` (`booking_id`, `guest_id`).
 - Guest details (`name`, `email`, `phone`) live in `guests` table.
-- No pivot table used by design for current scope.
 
 ## Transaction Safety
 
@@ -90,7 +90,7 @@ Both guest interfaces are bound to `GuestPersistenceService`.
 1. Validate input via `BookingStoreValidation`.
 2. Inside transaction:
 3. Persist guest via guest persistence service.
-4. Map `guest_ids` onto booking payload.
+4. Create booking and sync guests through pivot relation.
 5. Persist booking.
 6. Return JSON response.
 

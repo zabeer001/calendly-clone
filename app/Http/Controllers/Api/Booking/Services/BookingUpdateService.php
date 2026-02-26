@@ -34,16 +34,13 @@ class BookingUpdateService
         }
 
         $booking = DB::transaction(function () use ($validated, $booking): Booking {
-            $guestId = $this->guestPersistence->persistForUpdate($validated, $booking);
+            $guestIds = $this->guestPersistence->persistForUpdate($validated);
 
             if (($validated['status'] ?? null) === 'cancelled' && empty($validated['cancelled_at'])) {
                 $validated['cancelled_at'] = now();
             }
 
-            unset($validated['guest_name'], $validated['guest_email'], $validated['guest_phone']);
-            if ($guestId !== null) {
-                $validated['guest_ids'] = [$guestId];
-            }
+            unset($validated['guests']);
 
             if (array_key_exists('host_user_id', $validated)) {
                 $booking->host_user_id = $validated['host_user_id'];
@@ -53,9 +50,6 @@ class BookingUpdateService
             }
             if (array_key_exists('title', $validated)) {
                 $booking->title = $validated['title'];
-            }
-            if (array_key_exists('guest_ids', $validated)) {
-                $booking->guest_ids = $validated['guest_ids'];
             }
             if (array_key_exists('timezone', $validated)) {
                 $booking->timezone = $validated['timezone'];
@@ -82,6 +76,9 @@ class BookingUpdateService
                 $booking->cancelled_at = $validated['cancelled_at'];
             }
             $booking->save();
+            if ($guestIds !== null) {
+                $booking->guests()->sync($guestIds);
+            }
 
             return $booking;
         });
