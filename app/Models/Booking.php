@@ -10,9 +10,7 @@ class Booking extends Model
         'host_user_id',
         'event_type',
         'title',
-        'guest_name',
-        'guest_email',
-        'guest_phone',
+        'guest_ids',
         'timezone',
         'start_at',
         'end_at',
@@ -21,5 +19,9 @@ class Booking extends Model
         'notes',
         'cancel_reason',
         'cancelled_at',
+    ];
+
+    protected $casts = [
+        'guest_ids' => 'array',
     ];
 }

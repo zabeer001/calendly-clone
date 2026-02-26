@@ -3,37 +3,52 @@
 namespace App\Http\Controllers\Api\Booking\Services;
 
 use App\Models\Booking;
+use App\Http\Controllers\Api\Booking\Services\Sahred\Guest\GuestStorePersistenceInterface;
+use App\Http\Controllers\Api\Booking\Services\Sahred\Validations\BookingStoreValidation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class BookingStoreService
 {
+    public function __construct(
+        private GuestStorePersistenceInterface $guestPersistence,
+        private BookingStoreValidation $bookingStoreValidation
+    )
+    {
+    }
+
     public function handle(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'host_user_id' => ['nullable', 'integer', 'exists:users,id'],
-            'event_type' => ['required', 'string', 'max:120'],
-            'title' => ['required', 'string', 'max:160'],
-            'guest_name' => ['required', 'string', 'max:120'],
-            'guest_email' => ['required', 'email', 'max:255'],
-            'guest_phone' => ['nullable', 'string', 'max:30'],
-            'timezone' => ['required', 'string', 'max:80'],
-            'start_at' => ['required', 'date'],
-            'end_at' => ['nullable', 'date', 'after:start_at'],
-            'duration_minutes' => ['nullable', 'integer', 'min:15', 'max:240'],
-            'status' => ['sometimes', Rule::in(['pending', 'confirmed', 'cancelled', 'completed'])],
-            'notes' => ['nullable', 'string', 'max:2000'],
-            'cancel_reason' => ['nullable', 'string', 'max:2000'],
-            'cancelled_at' => ['nullable', 'date'],
-        ]);
+        $validated = $this->bookingStoreValidation->validate($request);
 
-        if (($validated['status'] ?? null) === 'cancelled' && empty($validated['cancelled_at'])) {
-            $validated['cancelled_at'] = now();
-        }
+        $booking = DB::transaction(function () use ($validated): Booking {
+            $guestId = $this->guestPersistence->persistForStore($validated);
 
-        $booking = new Booking();
-        $booking->forceFill($validated)->save();
+            if (($validated['status'] ?? null) === 'cancelled' && empty($validated['cancelled_at'])) {
+                $validated['cancelled_at'] = now();
+            }
+
+            unset($validated['guest_name'], $validated['guest_email'], $validated['guest_phone']);
+            $validated['guest_ids'] = [$guestId];
+
+            $booking = new Booking();
+            $booking->host_user_id = $validated['host_user_id'] ?? null;
+            $booking->event_type = $validated['event_type'];
+            $booking->title = $validated['title'];
+            $booking->guest_ids = $validated['guest_ids'];
+            $booking->timezone = $validated['timezone'];
+            $booking->start_at = $validated['start_at'];
+            $booking->end_at = $validated['end_at'] ?? null;
+            $booking->duration_minutes = $validated['duration_minutes'] ?? null;
+            $booking->status = $validated['status'] ?? 'pending';
+            $booking->notes = $validated['notes'] ?? null;
+            $booking->cancel_reason = $validated['cancel_reason'] ?? null;
+            $booking->cancelled_at = $validated['cancelled_at'] ?? null;
+            $booking->save();
+
+            return $booking;
+        });
 
         return response()->json([
             'status' => 'success',

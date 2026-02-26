@@ -16,9 +16,7 @@ return new class extends Migration
             $table->foreignId('host_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('event_type', 120);
             $table->string('title', 160);
-            $table->string('guest_name', 120);
-            $table->string('guest_email')->index();
-            $table->string('guest_phone', 30)->nullable();
+            $table->json('guest_ids')->nullable();
             $table->string('timezone', 80);
             $table->timestamp('start_at');
             $table->timestamp('end_at')->nullable();

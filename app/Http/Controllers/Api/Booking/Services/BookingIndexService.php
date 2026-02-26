@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Booking\Services;
 
 use App\Models\Booking;
+use App\Models\Guest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -14,11 +15,24 @@ class BookingIndexService
 
         if ($request->filled('search')) {
             $search = trim((string) $request->string('search'));
+            $guestIds = Guest::query()
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->limit(100)
+                ->pluck('id')
+                ->all();
 
-            $query->where(function ($q) use ($search) {
-                $q->where('guest_name', 'like', "%{$search}%")
-                    ->orWhere('guest_email', 'like', "%{$search}%")
-                    ->orWhere('title', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search, $guestIds) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('event_type', 'like', "%{$search}%");
+
+                if (! empty($guestIds)) {
+                    $q->orWhere(function ($guestQuery) use ($guestIds) {
+                        foreach ($guestIds as $guestId) {
+                            $guestQuery->orWhereJsonContains('guest_ids', $guestId);
+                        }
+                    });
+                }
 
                 if (ctype_digit($search)) {
                     $q->orWhere('id', (int) $search);
@@ -35,7 +49,20 @@ class BookingIndexService
         }
 
         if ($request->filled('guest_email')) {
-            $query->where('guest_email', $request->string('guest_email'));
+            $guestIds = Guest::query()
+                ->where('email', (string) $request->string('guest_email'))
+                ->pluck('id')
+                ->all();
+
+            if (empty($guestIds)) {
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->where(function ($guestQuery) use ($guestIds) {
+                    foreach ($guestIds as $guestId) {
+                        $guestQuery->orWhereJsonContains('guest_ids', $guestId);
+                    }
+                });
+            }
         }
 
         if ($request->filled('date_from')) {

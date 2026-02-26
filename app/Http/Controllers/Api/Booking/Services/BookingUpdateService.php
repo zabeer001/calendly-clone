@@ -3,34 +3,24 @@
 namespace App\Http\Controllers\Api\Booking\Services;
 
 use App\Models\Booking;
+use App\Http\Controllers\Api\Booking\Services\Sahred\Guest\GuestUpdatePersistenceInterface;
+use App\Http\Controllers\Api\Booking\Services\Sahred\Validations\BookingUpdateValidation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class BookingUpdateService
 {
+    public function __construct(
+        private GuestUpdatePersistenceInterface $guestPersistence,
+        private BookingUpdateValidation $bookingUpdateValidation
+    )
+    {
+    }
+
     public function handle(Request $request, Booking $booking): JsonResponse
     {
-        $validated = $request->validate([
-            'host_user_id' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
-            'event_type' => ['sometimes', 'required', 'string', 'max:120'],
-            'title' => ['sometimes', 'required', 'string', 'max:160'],
-            'guest_name' => ['sometimes', 'required', 'string', 'max:120'],
-            'guest_email' => ['sometimes', 'required', 'email', 'max:255'],
-            'guest_phone' => ['sometimes', 'nullable', 'string', 'max:30'],
-            'timezone' => ['sometimes', 'required', 'string', 'max:80'],
-            'start_at' => ['sometimes', 'required', 'date'],
-            'end_at' => ['sometimes', 'nullable', 'date'],
-            'duration_minutes' => ['sometimes', 'nullable', 'integer', 'min:15', 'max:240'],
-            'status' => ['sometimes', Rule::in(['pending', 'confirmed', 'cancelled', 'completed'])],
-            'notes' => ['sometimes', 'nullable', 'string', 'max:2000'],
-            'cancel_reason' => ['sometimes', 'nullable', 'string', 'max:2000'],
-            'cancelled_at' => ['sometimes', 'nullable', 'date'],
-        ]);
-
-        if (($validated['status'] ?? null) === 'cancelled' && empty($validated['cancelled_at'])) {
-            $validated['cancelled_at'] = now();
-        }
+        $validated = $this->bookingUpdateValidation->validate($request);
 
         if (array_key_exists('end_at', $validated) && ! empty($validated['end_at'])) {
             $startAt = $validated['start_at'] ?? $booking->start_at;
@@ -43,7 +33,58 @@ class BookingUpdateService
             }
         }
 
-        $booking->forceFill($validated)->save();
+        $booking = DB::transaction(function () use ($validated, $booking): Booking {
+            $guestId = $this->guestPersistence->persistForUpdate($validated, $booking);
+
+            if (($validated['status'] ?? null) === 'cancelled' && empty($validated['cancelled_at'])) {
+                $validated['cancelled_at'] = now();
+            }
+
+            unset($validated['guest_name'], $validated['guest_email'], $validated['guest_phone']);
+            if ($guestId !== null) {
+                $validated['guest_ids'] = [$guestId];
+            }
+
+            if (array_key_exists('host_user_id', $validated)) {
+                $booking->host_user_id = $validated['host_user_id'];
+            }
+            if (array_key_exists('event_type', $validated)) {
+                $booking->event_type = $validated['event_type'];
+            }
+            if (array_key_exists('title', $validated)) {
+                $booking->title = $validated['title'];
+            }
+            if (array_key_exists('guest_ids', $validated)) {
+                $booking->guest_ids = $validated['guest_ids'];
+            }
+            if (array_key_exists('timezone', $validated)) {
+                $booking->timezone = $validated['timezone'];
+            }
+            if (array_key_exists('start_at', $validated)) {
+                $booking->start_at = $validated['start_at'];
+            }
+            if (array_key_exists('end_at', $validated)) {
+                $booking->end_at = $validated['end_at'];
+            }
+            if (array_key_exists('duration_minutes', $validated)) {
+                $booking->duration_minutes = $validated['duration_minutes'];
+            }
+            if (array_key_exists('status', $validated)) {
+                $booking->status = $validated['status'];
+            }
+            if (array_key_exists('notes', $validated)) {
+                $booking->notes = $validated['notes'];
+            }
+            if (array_key_exists('cancel_reason', $validated)) {
+                $booking->cancel_reason = $validated['cancel_reason'];
+            }
+            if (array_key_exists('cancelled_at', $validated)) {
+                $booking->cancelled_at = $validated['cancelled_at'];
+            }
+            $booking->save();
+
+            return $booking;
+        });
 
         return response()->json([
             'status' => 'success',
