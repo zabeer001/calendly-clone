@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Booking\BookingController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\GoogleMeet\GoogleMeetController;
 use App\Http\Controllers\Api\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,3 +17,8 @@ Route::post('bookings', [BookingController::class, 'store']);
 Route::apiResource('users', UserController::class);
 Route::apiResource('employees', EmployeeController::class);
 Route::apiResource('bookings', BookingController::class)->except(['store']);
+
+Route::prefix('google-meet')->group(function (): void {
+    Route::get('auth-url', [GoogleMeetController::class, 'authUrl']);
+    Route::get('callback', [GoogleMeetController::class, 'callback']);
+});

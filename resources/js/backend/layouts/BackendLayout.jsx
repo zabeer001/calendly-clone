@@ -13,7 +13,7 @@ function BackendLayout({ children }) {
             const token = getAccessToken();
 
             if (!token) {
-                window.location.href = '/sign-in';
+                window.location.href = '/';
                 return;
             }
 
@@ -21,7 +21,7 @@ function BackendLayout({ children }) {
                 await refreshToken();
             } catch (error) {
                 clearSession();
-                window.location.href = '/sign-in';
+                window.location.href = '/';
             }
         };
 

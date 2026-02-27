@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Booking\Services;
 
 use App\Models\Booking;
+use Throwable;
+use App\Services\GoogleMeet\GoogleMeetService;
 use App\Http\Controllers\Api\Booking\Services\Sahred\Guest\GuestStorePersistenceInterface;
 use App\Http\Controllers\Api\Booking\Services\Sahred\Validations\BookingStoreValidation;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +15,8 @@ class BookingStoreService
 {
     public function __construct(
         private GuestStorePersistenceInterface $guestPersistence,
-        private BookingStoreValidation $bookingStoreValidation
+        private BookingStoreValidation $bookingStoreValidation,
+        private GoogleMeetService $googleMeetService
     ) {}
 
     public function handle(Request $request): JsonResponse
@@ -47,10 +50,43 @@ class BookingStoreService
             return $booking;
         });
 
+        $meetPayload = $this->buildMeetPayload($validated);
+        $meetData = [
+            'meet_link' => null,
+            'calendar_link' => null,
+            'event_id' => null,
+        ];
+
+        try {
+            $meetData = $this->googleMeetService->createMeetLink($meetPayload);
+        } catch (Throwable $e) {
+            // Booking should still be created even if Google API fails.
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Booking created successfully.',
-            'data' => $booking,
+            'data' => [
+                ...$booking->toArray(),
+                'google_meet_link' => $meetData['meet_link'],
+                'google_calendar_link' => $meetData['calendar_link'],
+                'google_meet_event_id' => $meetData['event_id'],
+            ],
         ], 201);
+    }
+
+    private function buildMeetPayload(array $validated): array
+    {
+        return [
+            'title' => $validated['title'],
+            'description' => $validated['notes'] ?? null,
+            'start_at' => now()->addMinutes(2)->toDateTimeString(),
+            'duration_minutes' => 10,
+            'timezone' => 'Asia/Dhaka',
+            'attendees' => collect($validated['guests'] ?? [])
+                ->map(fn (array $guest) => ['email' => $guest['email']])
+                ->values()
+                ->all(),
+        ];
     }
 }

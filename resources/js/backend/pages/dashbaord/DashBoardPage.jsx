@@ -28,7 +28,7 @@ function DashBoardPage() {
         const token = localStorage.getItem('access_token');
 
         if (!token) {
-            window.location.href = '/sign-in';
+            window.location.href = '/';
         }
     }, []);
 
