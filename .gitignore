@@ -19,6 +19,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+client_secret_*.apps.googleusercontent.com.json
 Homestead.json
 Homestead.yaml
 Thumbs.db
