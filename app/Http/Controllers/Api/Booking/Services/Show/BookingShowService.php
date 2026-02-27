@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Api\Booking\Services;
+namespace App\Http\Controllers\Api\Booking\Services\Show;
 
 use App\Models\Booking;
 use Illuminate\Http\JsonResponse;
 
-class BookingDeleteService
+class BookingShowService
 {
     public function handle(Booking $booking): JsonResponse
     {
-        $booking->delete();
+        // return 0;
+        $booking->load('guests');
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Booking deleted successfully.',
+            'data' => $booking,
         ]);
     }
 }

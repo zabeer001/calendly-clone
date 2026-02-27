@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\Booking;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Api\Booking\Services\BookingDeleteService;
-use App\Http\Controllers\Api\Booking\Services\BookingIndexService;
-use App\Http\Controllers\Api\Booking\Services\BookingShowService;
-use App\Http\Controllers\Api\Booking\Services\BookingStoreService;
-use App\Http\Controllers\Api\Booking\Services\BookingUpdateService;
+use App\Http\Controllers\Api\Booking\Services\Delete\BookingDeleteService;
+use App\Http\Controllers\Api\Booking\Services\Index\BookingIndexService;
+use App\Http\Controllers\Api\Booking\Services\Show\BookingShowService;
+use App\Http\Controllers\Api\Booking\Services\Store\BookingStoreService;
+use App\Http\Controllers\Api\Booking\Services\Update\BookingUpdateService;
 use App\Models\Booking;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

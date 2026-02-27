@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Booking\Services\Sahred\Validations;
+namespace App\Http\Controllers\Api\Booking\Services\Update\Validations;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

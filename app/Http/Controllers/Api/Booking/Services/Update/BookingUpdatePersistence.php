@@ -1,39 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Api\Booking\Services;
+namespace App\Http\Controllers\Api\Booking\Services\Update;
 
-use App\Models\Booking;
 use App\Http\Controllers\Api\Booking\Services\Sahred\Guest\GuestUpdatePersistenceInterface;
-use App\Http\Controllers\Api\Booking\Services\Sahred\Validations\BookingUpdateValidation;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Models\Booking;
 use Illuminate\Support\Facades\DB;
 
-class BookingUpdateService
+class BookingUpdatePersistence
 {
     public function __construct(
-        private GuestUpdatePersistenceInterface $guestPersistence,
-        private BookingUpdateValidation $bookingUpdateValidation
-    )
+        private GuestUpdatePersistenceInterface $guestPersistence
+    ) {}
+
+    public function update(Booking $booking, array $validated): Booking
     {
-    }
-
-    public function handle(Request $request, Booking $booking): JsonResponse
-    {
-        $validated = $this->bookingUpdateValidation->validate($request);
-
-        if (array_key_exists('end_at', $validated) && ! empty($validated['end_at'])) {
-            $startAt = $validated['start_at'] ?? $booking->start_at;
-
-            if (strtotime((string) $validated['end_at']) <= strtotime((string) $startAt)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'The end_at field must be a date after start_at.',
-                ], 422);
-            }
-        }
-
-        $booking = DB::transaction(function () use ($validated, $booking): Booking {
+        return DB::transaction(function () use ($validated, $booking): Booking {
             $guestIds = $this->guestPersistence->persistForUpdate($validated);
 
             if (($validated['status'] ?? null) === 'cancelled' && empty($validated['cancelled_at'])) {
@@ -82,11 +63,5 @@ class BookingUpdateService
 
             return $booking;
         });
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Booking updated successfully.',
-            'data' => $booking,
-        ]);
     }
 }

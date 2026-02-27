@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Booking\Services;
+namespace App\Http\Controllers\Api\Booking\Services\Index;
 
 use App\Models\Booking;
 use Illuminate\Http\JsonResponse;

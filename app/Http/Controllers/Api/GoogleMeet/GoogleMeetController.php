@@ -197,10 +197,24 @@ class GoogleMeetController extends Controller
 
     private function buildClient(): Client
     {
+        $clientId = (string) config('services.google.client_id');
+        $clientSecret = (string) config('services.google.client_secret');
+        $redirectUri = (string) config('services.google.redirect_uri');
+
+        if (
+            $clientId === '' ||
+            $clientSecret === '' ||
+            $redirectUri === '' ||
+            str_contains($clientId, 'dummy-') ||
+            str_contains($clientSecret, 'dummy-')
+        ) {
+            abort(422, 'Google OAuth is not configured. Set real GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI in .env and run php artisan config:clear.');
+        }
+
         $client = new Client();
-        $client->setClientId((string) config('services.google.client_id'));
-        $client->setClientSecret((string) config('services.google.client_secret'));
-        $client->setRedirectUri((string) config('services.google.redirect_uri'));
+        $client->setClientId($clientId);
+        $client->setClientSecret($clientSecret);
+        $client->setRedirectUri($redirectUri);
         $client->setAccessType('offline');
         $client->setPrompt('consent');
         $client->setIncludeGrantedScopes(true);

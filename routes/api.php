@@ -11,12 +11,11 @@ Route::post('signin', [AuthController::class, 'signin']);
 Route::post('refresh', [AuthController::class, 'refresh']);
 Route::post('signout', [AuthController::class, 'signout']);
 
-// Public endpoint for guest booking creation (Calendly-style)
-Route::post('bookings', [BookingController::class, 'store']);
+
 
 Route::apiResource('users', UserController::class);
 Route::apiResource('employees', EmployeeController::class);
-Route::apiResource('bookings', BookingController::class)->except(['store']);
+Route::apiResource('bookings', BookingController::class);
 
 Route::prefix('google-meet')->group(function (): void {
     Route::get('auth-url', [GoogleMeetController::class, 'authUrl']);
