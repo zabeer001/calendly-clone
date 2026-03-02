@@ -2,11 +2,11 @@ import React from 'react';
 import { ArrowLeft, ClipboardList } from 'lucide-react';
 import GuestsSection from './GuestsSection';
 import { fieldClass } from './formClasses';
-import EventTypeField from '../../../../../common/booking/form-fields/EventTypeField';
-import TitleField from '../../../../../common/booking/form-fields/TitleField';
-import StatusField from '../../../../../common/booking/form-fields/StatusField';
-import NotesField from '../../../../../common/booking/form-fields/NotesField';
-import CancelReasonField from '../../../../../common/booking/form-fields/CancelReasonField';
+import EventTypeField from '../../form-fields/EventTypeField';
+import TitleField from '../../form-fields/TitleField';
+import StatusField from '../../form-fields/StatusField';
+import NotesField from '../../form-fields/NotesField';
+import CancelReasonField from '../../form-fields/CancelReasonField';
 import useCreateBookingStore from '../_store/useCreateBookingStore';
 
 export default function CreateBookingStepTwo({

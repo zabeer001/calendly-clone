@@ -2,7 +2,7 @@ import React from 'react';
 
 function FrontendNavbar({ themes, theme, setTheme }) {
     return (
-        <header className="navbar rounded-2xl border border-base-300/50 bg-base-100/70 shadow-lg backdrop-blur-xl">
+        <header className="navbar rounded-2xl border border-base-300/50 bg-base-100/70 shadow-lg backdrop-blur-xl mb-[4%]">
             <div className="navbar-start">
                 <a className="text-xl font-bold tracking-wide bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent">
                      Services

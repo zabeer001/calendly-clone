@@ -33,17 +33,8 @@ function toGuests(guests) {
 }
 
 export default function EditBookingForm({ bookingId }) {
-    const eventType = useEditBookingStore((state) => state.form.event_type);
-    const title = useEditBookingStore((state) => state.form.title);
-    const timezone = useEditBookingStore((state) => state.form.timezone);
-    const startAt = useEditBookingStore((state) => state.form.start_at);
-    const durationMinutes = useEditBookingStore((state) => state.form.duration_minutes);
-    const status = useEditBookingStore((state) => state.form.status);
-    const notes = useEditBookingStore((state) => state.form.notes);
-    const cancelReason = useEditBookingStore((state) => state.form.cancel_reason);
     const isLoading = useEditBookingStore((state) => state.isLoading);
     const isSaving = useEditBookingStore((state) => state.isSaving);
-    const updateField = useEditBookingStore((state) => state.updateField);
     const setForm = useEditBookingStore((state) => state.setForm);
     const setError = useEditBookingStore((state) => state.setError);
     const setIsLoading = useEditBookingStore((state) => state.setIsLoading);
@@ -116,19 +107,5 @@ export default function EditBookingForm({ bookingId }) {
         return <p className="text-sm text-base-content/70">Loading booking...</p>;
     }
 
-    return (
-        <EditBookingFields
-            cancelReason={cancelReason}
-            durationMinutes={durationMinutes}
-            eventType={eventType}
-            isSaving={isSaving}
-            notes={notes}
-            startAt={startAt}
-            status={status}
-            timezone={timezone}
-            title={title}
-            onSubmit={handleSubmit}
-            onUpdateField={updateField}
-        />
-    );
+    return <EditBookingFields isSaving={isSaving} onSubmit={handleSubmit} />;
 }

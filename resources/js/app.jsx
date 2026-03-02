@@ -10,6 +10,7 @@ import BackendLayout from './backend/layouts/BackendLayout';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 const frontendPages = import.meta.glob('./frontend/pages/**/*.jsx');
+const commonPages = import.meta.glob('./common/**/*.jsx');
 const backendPages = import.meta.glob('./backend/pages/**/*.jsx');
 
 createInertiaApp({
@@ -20,9 +21,19 @@ createInertiaApp({
             page.default.layout = page.default.layout || ((pageNode) => <FrontendLayout>{pageNode}</FrontendLayout>);
             return page;
         } catch {
-            const page = await resolvePageComponent(`./backend/pages/${name}.jsx`, backendPages);
-            page.default.layout = page.default.layout || ((pageNode) => <BackendLayout>{pageNode}</BackendLayout>);
-            return page;
+            try {
+                const page = await resolvePageComponent(`./${name}.jsx`, commonPages);
+                page.default.layout = page.default.layout || ((pageNode) => (
+                    pageNode.props.layoutContext === 'backend'
+                        ? <BackendLayout>{pageNode}</BackendLayout>
+                        : <FrontendLayout>{pageNode}</FrontendLayout>
+                ));
+                return page;
+            } catch {
+                const page = await resolvePageComponent(`./backend/pages/${name}.jsx`, backendPages);
+                page.default.layout = page.default.layout || ((pageNode) => <BackendLayout>{pageNode}</BackendLayout>);
+                return page;
+            }
         }
     },
     setup({ el, App, props }) {

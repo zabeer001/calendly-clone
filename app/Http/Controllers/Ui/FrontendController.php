@@ -17,4 +17,5 @@ class FrontendController extends Controller
     {
         return Inertia::render('auth/SignInPage');
     }
+
 }

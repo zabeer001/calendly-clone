@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { CalendarDays, Clock3 } from 'lucide-react';
+import NoticeCard from './NoticeCard';
+import SelectionSummaryCard from './SelectionSummaryCard';
 import {
     format,
     isBefore,
     isSameDay,
+    isSunday,
     parse,
     set,
     startOfDay,
@@ -14,6 +17,7 @@ import 'react-day-picker/style.css';
 
 const DISPLAY_START_HOUR = 9;
 const DISPLAY_END_HOUR = 18;
+const SUNDAY_MATCHER = { dayOfWeek: [0] };
 
 function parseDateTimeValue(value) {
     if (!value) {
@@ -197,10 +201,20 @@ export default function StartAtField({
                         onSelect={handleDateSelect}
                         showOutsideDays
                         fixedWeeks
-                        disabled={{ before: startOfDay(new Date()) }}
+                        disabled={[{ before: startOfDay(new Date()) }, SUNDAY_MATCHER]}
+                        modifiers={{
+                            holiday: (date) => isSunday(date),
+                        }}
+                        modifiersStyles={{
+                            holiday: {
+                                color: 'rgb(239, 68, 68)',
+                                fontWeight: 700,
+                            },
+                        }}
                         month={selectedDate || startOfToday()}
                         className="mx-auto"
                     />
+                   
                 </div>
 
                 <div className="rounded-2xl border border-base-300/60 bg-base-100 p-3">
@@ -237,10 +251,10 @@ export default function StartAtField({
                 </div>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-base-300/60 bg-base-200/40 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.16em] text-base-content/55">Selected</p>
-                <p className="mt-1 text-sm font-medium text-base-content/80">{selectedSummary}</p>
-            </div>
+            <SelectionSummaryCard value={selectedSummary} />
+             <NoticeCard title="Holiday notice">
+                        Sundays are marked as holidays and cannot be booked.
+                    </NoticeCard>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import LabeledSelect from './LabeledSelect';
-import { selectClass } from '../formClasses';
+import { selectClass } from '../../../backend/pages/bookings/_components/formClasses';
 
 export default function StatusField({ value, onChange }) {
     return (

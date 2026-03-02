@@ -37,11 +37,6 @@ class BackendController extends Controller
         return Inertia::render('bookings/index/BookingsPage');
     }
 
-    public function bookingCreate(): Response
-    {
-        return Inertia::render('bookings/create/CreateBookingPage');
-    }
-
     public function bookingEdit(string $uniqId): Response
     {
         return Inertia::render('bookings/edit/EditBookingPage', [

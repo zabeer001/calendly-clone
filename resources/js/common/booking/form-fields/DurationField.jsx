@@ -1,6 +1,6 @@
 import React from 'react';
 import LabeledInput from './LabeledInput';
-import { fieldClass } from '../formClasses';
+import { fieldClass } from '../../../backend/pages/bookings/_components/formClasses';
 
 export default function DurationField({ value, onChange }) {
     return (

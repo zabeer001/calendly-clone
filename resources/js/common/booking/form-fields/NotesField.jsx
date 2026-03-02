@@ -1,6 +1,6 @@
 import React from 'react';
 import LabeledTextarea from './LabeledTextarea';
-import { textareaClass } from '../formClasses';
+import { textareaClass } from '../../../backend/pages/bookings/_components/formClasses';
 
 export default function NotesField({ value, onChange }) {
     return (

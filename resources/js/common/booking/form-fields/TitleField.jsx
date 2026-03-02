@@ -1,12 +1,12 @@
 import React from 'react';
 import LabeledInput from './LabeledInput';
-import { fieldClass } from '../formClasses';
+import { fieldClass } from '../../../backend/pages/bookings/_components/formClasses';
 
-export default function TimezoneField({ value, onChange }) {
+export default function TitleField({ value, onChange }) {
     return (
         <LabeledInput
-            label="Timezone"
-            name="timezone"
+            label="Title"
+            name="title"
             value={value}
             onChange={onChange}
             className={fieldClass}
