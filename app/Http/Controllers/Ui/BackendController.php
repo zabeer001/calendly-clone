@@ -18,6 +18,11 @@ class BackendController extends Controller
         return Inertia::render('users/UsersPage');
     }
 
+    public function userCreate(): Response
+    {
+        return Inertia::render('users/CreateUserPage');
+    }
+
     public function userShow(int $user): Response
     {
         return Inertia::render('users/ShowUserPage', [

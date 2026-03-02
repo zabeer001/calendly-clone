@@ -12,6 +12,7 @@ Route::get('/sign-in', [FrontendController::class, 'signIn']);
 Route::get('/', [CommonController::class, 'bookingCreate'])->defaults('layoutContext', 'frontend');
 Route::get('/dashbaord', [BackendController::class, 'index']);
 Route::get('/users', [BackendController::class, 'users']);
+Route::get('/users/create', [BackendController::class, 'userCreate']);
 Route::get('/users/{user}', [BackendController::class, 'userShow'])->whereNumber('user');
 Route::get('/users/{user}/edit', [BackendController::class, 'userEdit'])->whereNumber('user');
 Route::get('/bookings', [BackendController::class, 'bookings']);

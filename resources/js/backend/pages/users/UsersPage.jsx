@@ -15,7 +15,9 @@ function UsersPage() {
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
-    const [message, setMessage] = useState(initialFilters.updated ? 'User updated successfully.' : '');
+    const [message, setMessage] = useState(
+        initialFilters.updated ? 'User updated successfully.' : '',
+    );
     const [searchValue, setSearchValue] = useState(initialFilters.search);
     const [activeSearch, setActiveSearch] = useState(initialFilters.search);
     const [roleValue, setRoleValue] = useState(initialFilters.role);
@@ -120,6 +122,14 @@ function UsersPage() {
         loadUsers(initialFilters.search, initialFilters.role);
     }, [initialFilters]);
 
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+
+        if (params.get('created') === '1') {
+            setMessage('User created successfully.');
+        }
+    }, []);
+
     const syncPageQuery = (search, role) => {
         const params = new URLSearchParams(window.location.search);
 
@@ -188,10 +198,18 @@ function UsersPage() {
     return (
         <div className="mx-auto max-w-7xl space-y-6">
             <section className="rounded-2xl border border-base-300/60 bg-base-100/75 p-6 shadow-xl backdrop-blur-lg">
-                <h1 className="text-3xl font-extrabold">Users</h1>
-                <p className="mt-2 text-sm text-base-content/70">
-                    Manage your platform users here. Signed in as: <span className="font-semibold uppercase">{userRole}</span>
-                </p>
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <h1 className="text-3xl font-extrabold">Users</h1>
+                        <p className="mt-2 text-sm text-base-content/70">
+                            Manage your platform users here. Signed in as:{' '}
+                            <span className="font-semibold uppercase">{userRole}</span>
+                        </p>
+                    </div>
+                    <Link href="/users/create" className="btn btn-success">
+                        Add User
+                    </Link>
+                </div>
             </section>
 
             <section className="rounded-2xl border border-base-300/60 bg-base-100/75 p-6 shadow-xl backdrop-blur-lg">
