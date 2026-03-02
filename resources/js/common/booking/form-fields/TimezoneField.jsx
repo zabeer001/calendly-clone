@@ -85,10 +85,10 @@ export default function TimezoneField({ value, onChange }) {
                                 ? 'border-base-content/30 ring-0'
                                 : 'border-base-content/15'
                         }`,
-                    valueContainer: () => 'gap-2 px-[5%] py-2',
-                    placeholder: () => 'pl-1 text-base-content/60',
-                    singleValue: () => 'pl-[5%] text-base-content',
-                    input: () => 'pl-1 text-base-content',
+                    valueContainer: () => 'gap-2 px-4 py-2',
+                    placeholder: () => 'text-base-content/60',
+                    singleValue: () => 'text-base-content',
+                    input: () => 'text-base-content',
                     indicatorsContainer: () => 'flex items-center',
                     dropdownIndicator: () =>
                         'cursor-pointer px-5 text-base-content/60 transition-colors hover:text-base-content',
@@ -119,14 +119,17 @@ export default function TimezoneField({ value, onChange }) {
                         ...base,
                         margin: 0,
                         padding: 0,
+                        paddingLeft: '0.75rem',
                     }),
                     singleValue: (base) => ({
                         ...base,
                         margin: 0,
+                        paddingLeft: '0.75rem',
                     }),
                     placeholder: (base) => ({
                         ...base,
                         margin: 0,
+                        paddingLeft: '0.75rem',
                     }),
                     dropdownIndicator: (base) => ({
                         ...base,
