@@ -1,16 +1,7 @@
 import React, { useEffect } from 'react';
 import { fetchBookingById, getApiErrorMessage, updateBooking } from '../../api/bookingApi';
 import useEditBookingStore from '../_store/useEditBookingStore';
-import GuestsSection from './GuestsSection';
-import { fieldClass } from './formClasses';
-import EventTypeField from '../../_components/form-fields/EventTypeField';
-import TitleField from '../../_components/form-fields/TitleField';
-import TimezoneField from '../../_components/form-fields/TimezoneField';
-import StartAtField from '../../_components/form-fields/StartAtField';
-import DurationField from '../../_components/form-fields/DurationField';
-import StatusField from '../../_components/form-fields/StatusField';
-import NotesField from '../../_components/form-fields/NotesField';
-import CancelReasonField from '../../_components/form-fields/CancelReasonField';
+import EditBookingFields from './EditBookingFields';
 
 function toDateTimeLocal(value) {
     if (!value) {
@@ -126,40 +117,18 @@ export default function EditBookingForm({ bookingId }) {
     }
 
     return (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <EventTypeField
-                value={eventType}
-                onChange={(e) => updateField('event_type', e.target.value)}
-            />
-            <TitleField value={title} onChange={(e) => updateField('title', e.target.value)} />
-            <GuestsSection fieldClass={fieldClass} />
-            <TimezoneField
-                value={timezone}
-                onChange={(e) => updateField('timezone', e.target.value)}
-            />
-            <StartAtField value={startAt} onChange={(e) => updateField('start_at', e.target.value)} />
-            <DurationField
-                value={durationMinutes}
-                onChange={(e) => updateField('duration_minutes', e.target.value)}
-            />
-            <StatusField value={status} onChange={(e) => updateField('status', e.target.value)} />
-            <NotesField value={notes} onChange={(e) => updateField('notes', e.target.value)} />
-            <CancelReasonField
-                value={cancelReason}
-                onChange={(e) => updateField('cancel_reason', e.target.value)}
-                visible={status === 'cancelled'}
-            />
-
-            <div className="md:col-span-2">
-                <button
-                    type="button"
-                    className="btn btn-success w-full"
-                    disabled={isSaving}
-                    onClick={handleSubmit}
-                >
-                    {isSaving ? 'Saving...' : 'Update Booking'}
-                </button>
-            </div>
-        </div>
+        <EditBookingFields
+            cancelReason={cancelReason}
+            durationMinutes={durationMinutes}
+            eventType={eventType}
+            isSaving={isSaving}
+            notes={notes}
+            startAt={startAt}
+            status={status}
+            timezone={timezone}
+            title={title}
+            onSubmit={handleSubmit}
+            onUpdateField={updateField}
+        />
     );
 }

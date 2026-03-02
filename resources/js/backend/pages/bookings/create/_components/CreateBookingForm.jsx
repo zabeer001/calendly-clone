@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { format, parse } from 'date-fns';
 import { createBooking, getApiErrorMessage } from '../../api/bookingApi';
 import useCreateBookingStore from '../_store/useCreateBookingStore';
-import GuestsSection from './GuestsSection';
-import { fieldClass } from './formClasses';
-import EventTypeField from '../../_components/form-fields/EventTypeField';
-import TitleField from '../../_components/form-fields/TitleField';
-import TimezoneField from '../../_components/form-fields/TimezoneField';
-import StartAtField from '../../_components/form-fields/StartAtField';
-import DurationField from '../../_components/form-fields/DurationField';
-import StatusField from '../../_components/form-fields/StatusField';
-import NotesField from '../../_components/form-fields/NotesField';
-import CancelReasonField from '../../_components/form-fields/CancelReasonField';
+import CreateBookingStepOne from './CreateBookingStepOne';
+import CreateBookingStepTwo from './CreateBookingStepTwo';
+
+function formatSelection(value) {
+    if (!value) {
+        return 'Choose a date and time to continue.';
+    }
+
+    const parsed = parse(value, "yyyy-MM-dd'T'HH:mm", new Date());
+
+    if (Number.isNaN(parsed.getTime())) {
+        return 'Choose a date and time to continue.';
+    }
+
+    return format(parsed, "EEEE, MMMM d 'at' h:mm a");
+}
 
 export default function CreateBookingForm() {
+    const [currentStep, setCurrentStep] = useState(1);
     const eventType = useCreateBookingStore((state) => state.form.event_type);
     const title = useCreateBookingStore((state) => state.form.title);
     const timezone = useCreateBookingStore((state) => state.form.timezone);
@@ -25,6 +33,7 @@ export default function CreateBookingForm() {
     const updateField = useCreateBookingStore((state) => state.updateField);
     const setError = useCreateBookingStore((state) => state.setError);
     const setIsSaving = useCreateBookingStore((state) => state.setIsSaving);
+    const selectedSummary = useMemo(() => formatSelection(startAt), [startAt]);
 
     const handleSubmit = async () => {
         const { form } = useCreateBookingStore.getState();
@@ -42,41 +51,31 @@ export default function CreateBookingForm() {
         }
     };
 
-    return (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <EventTypeField
-                value={eventType}
-                onChange={(e) => updateField('event_type', e.target.value)}
+    if (currentStep === 1) {
+        return (
+            <CreateBookingStepOne
+                durationMinutes={durationMinutes}
+                selectedSummary={selectedSummary}
+                startAt={startAt}
+                timezone={timezone}
+                onContinue={() => setCurrentStep(2)}
+                onUpdateField={updateField}
             />
-            <TitleField value={title} onChange={(e) => updateField('title', e.target.value)} />
-            <GuestsSection fieldClass={fieldClass} />
-            <TimezoneField
-                value={timezone}
-                onChange={(e) => updateField('timezone', e.target.value)}
-            />
-            <StartAtField value={startAt} onChange={(e) => updateField('start_at', e.target.value)} />
-            <DurationField
-                value={durationMinutes}
-                onChange={(e) => updateField('duration_minutes', e.target.value)}
-            />
-            <StatusField value={status} onChange={(e) => updateField('status', e.target.value)} />
-            <NotesField value={notes} onChange={(e) => updateField('notes', e.target.value)} />
-            <CancelReasonField
-                value={cancelReason}
-                onChange={(e) => updateField('cancel_reason', e.target.value)}
-                visible={status === 'cancelled'}
-            />
+        );
+    }
 
-            <div className="md:col-span-2">
-                <button
-                    type="button"
-                    className="btn btn-success w-full"
-                    disabled={isSaving}
-                    onClick={handleSubmit}
-                >
-                    {isSaving ? 'Saving...' : 'Create Booking'}
-                </button>
-            </div>
-        </div>
+    return (
+        <CreateBookingStepTwo
+            cancelReason={cancelReason}
+            eventType={eventType}
+            isSaving={isSaving}
+            notes={notes}
+            selectedSummary={selectedSummary}
+            status={status}
+            title={title}
+            onBack={() => setCurrentStep(1)}
+            onSubmit={handleSubmit}
+            onUpdateField={updateField}
+        />
     );
 }
