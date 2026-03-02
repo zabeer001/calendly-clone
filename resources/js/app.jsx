@@ -16,24 +16,30 @@ const backendPages = import.meta.glob('./backend/pages/**/*.jsx');
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: async (name) => {
+        if (name.startsWith('common/')) {
+            const page = await resolvePageComponent(`./${name}.jsx`, commonPages);
+            page.default.layout = page.default.layout || ((pageNode) => (
+                pageNode.props.layoutContext === 'backend'
+                    ? <BackendLayout>{pageNode}</BackendLayout>
+                    : <FrontendLayout>{pageNode}</FrontendLayout>
+            ));
+            return page;
+        }
+
+        if (name.startsWith('frontend/')) {
+            const page = await resolvePageComponent(`./${name}.jsx`, frontendPages);
+            page.default.layout = page.default.layout || ((pageNode) => <FrontendLayout>{pageNode}</FrontendLayout>);
+            return page;
+        }
+
         try {
             const page = await resolvePageComponent(`./frontend/pages/${name}.jsx`, frontendPages);
             page.default.layout = page.default.layout || ((pageNode) => <FrontendLayout>{pageNode}</FrontendLayout>);
             return page;
         } catch {
-            try {
-                const page = await resolvePageComponent(`./${name}.jsx`, commonPages);
-                page.default.layout = page.default.layout || ((pageNode) => (
-                    pageNode.props.layoutContext === 'backend'
-                        ? <BackendLayout>{pageNode}</BackendLayout>
-                        : <FrontendLayout>{pageNode}</FrontendLayout>
-                ));
-                return page;
-            } catch {
-                const page = await resolvePageComponent(`./backend/pages/${name}.jsx`, backendPages);
-                page.default.layout = page.default.layout || ((pageNode) => <BackendLayout>{pageNode}</BackendLayout>);
-                return page;
-            }
+            const page = await resolvePageComponent(`./backend/pages/${name}.jsx`, backendPages);
+            page.default.layout = page.default.layout || ((pageNode) => <BackendLayout>{pageNode}</BackendLayout>);
+            return page;
         }
     },
     setup({ el, App, props }) {

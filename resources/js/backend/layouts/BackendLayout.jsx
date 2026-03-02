@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { clearSession, getAccessToken, refreshToken, apiRequest } from '../../shared/apiClient';
+import React, { useMemo, useState } from 'react';
+import { clearSession, apiRequest } from '../../shared/apiClient';
+import useAuthHook from '../../shared/hooks/useAuthHook';
 import Footer from './Footer';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -7,26 +8,7 @@ import Sidebar from './Sidebar';
 function BackendLayout({ children }) {
     const [theme, setTheme] = useState('forest');
     const role = useMemo(() => localStorage.getItem('role') || 'admin', []);
-
-    useEffect(() => {
-        const bootAuth = async () => {
-            const token = getAccessToken();
-
-            if (!token) {
-                window.location.href = '/';
-                return;
-            }
-
-            try {
-                await refreshToken();
-            } catch (error) {
-                clearSession();
-                window.location.href = '/';
-            }
-        };
-
-        bootAuth();
-    }, []);
+    const { isBootstrapping } = useAuthHook();
 
     const signOut = async () => {
         try {
@@ -35,9 +17,18 @@ function BackendLayout({ children }) {
             console.error('Sign out request failed:', error);
         } finally {
             clearSession();
-            window.location.href = '/';
+            window.location.href = '/sign-in';
         }
     };
+
+    if (isBootstrapping) {
+        return (
+            <main
+                data-theme={theme}
+                className="min-h-screen bg-gradient-to-br from-base-200 via-base-100 to-base-300 text-base-content"
+            />
+        );
+    }
 
     return (
         <main

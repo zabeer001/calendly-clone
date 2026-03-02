@@ -3,6 +3,8 @@ import CreateBookingHeader from './CreateBookingHeader';
 import CreateBookingError from './CreateBookingError';
 import CreateBookingForm from './CreateBookingForm';
 
+
+
 export default function CreateBookingComponents() {
     return (
         <div className="mx-auto max-w-6xl space-y-6">
