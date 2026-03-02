@@ -4,7 +4,7 @@ import { fieldClass } from './formClasses';
 import EventTypeField from '../../../../../common/booking/form-fields/EventTypeField';
 import TitleField from '../../../../../common/booking/form-fields/TitleField';
 import TimezoneField from '../../../../../common/booking/form-fields/TimezoneField';
-import StartAtField from '../../../../../common/booking/form-fields/StartAtField';
+import StartAtField from '../../../../../common/booking/form-fields/startAtField/StartAtField';
 import DurationField from '../../../../../common/booking/form-fields/DurationField';
 import StatusField from '../../../../../common/booking/form-fields/StatusField';
 import NotesField from '../../../../../common/booking/form-fields/NotesField';

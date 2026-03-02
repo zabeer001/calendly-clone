@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight, CalendarDays } from 'lucide-react';
 import TimezoneField from '../../../../../common/booking/form-fields/TimezoneField';
-import StartAtField from '../../../../../common/booking/form-fields/StartAtField';
+import StartAtField from '../../../../../common/booking/form-fields/startAtField/StartAtField';
 import DurationField from '../../../../../common/booking/form-fields/DurationField';
 import useCreateBookingStore from '../_store/useCreateBookingStore';
 
