@@ -21,6 +21,10 @@ class UserIndexService
             });
         }
 
+        if ($request->filled('role')) {
+            $query->where('role', (string) $request->input('role'));
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $query->paginate(10),

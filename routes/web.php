@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [FrontendController::class, 'signIn']);
 Route::get('/dashbaord', [BackendController::class, 'index']);
 Route::get('/users', [BackendController::class, 'users']);
+Route::get('/users/{user}', [BackendController::class, 'userShow'])->whereNumber('user');
+Route::get('/users/{user}/edit', [BackendController::class, 'userEdit'])->whereNumber('user');
 Route::get('/bookings', [BackendController::class, 'bookings']);
 Route::get('/bookings/create', [BackendController::class, 'bookingCreate']);
 Route::get('/bookings/{uniqId}/edit', [BackendController::class, 'bookingEdit'])->whereUuid('uniqId');
@@ -17,4 +19,3 @@ Route::get('/reports', [BackendController::class, 'reports']);
 Route::get('/settings', [BackendController::class, 'settings']);
 Route::get('/google/callback', [GoogleMeetController::class, 'callback']);
 Route::get('/google/meet/public-link', [GoogleMeetController::class, 'publicLink']);
-

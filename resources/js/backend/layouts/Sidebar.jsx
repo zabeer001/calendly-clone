@@ -1,12 +1,19 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import {
+    BarChart3,
+    CalendarDays,
+    LayoutDashboard,
+    Settings,
+    Users,
+} from 'lucide-react';
 
 const menuItems = [
-    { label: 'Dashboard', href: '/dashbaord' },
-    { label: 'Users', href: '/users' },
-    { label: 'Bookings', href: '/bookings' },
-    { label: 'Reports', href: '/reports' },
-    { label: 'Settings', href: '/settings' },
+    { label: 'Dashboard', href: '/dashbaord', icon: LayoutDashboard },
+    { label: 'Users', href: '/users', icon: Users },
+    { label: 'Bookings', href: '/bookings', icon: CalendarDays },
+    { label: 'Reports', href: '/reports', icon: BarChart3 },
+    { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
 function Sidebar() {
@@ -22,20 +29,33 @@ function Sidebar() {
                 </div>
 
                 <ul className="menu w-full gap-2 rounded-box p-0">
-                    {menuItems.map((item) => (
-                        <li key={item.label} className="w-full">
-                            <Link
-                                href={item.href}
-                                className={`w-full rounded-lg px-3 py-3 transition-colors duration-200 ${
-                                    url === item.href
-                                        ? 'bg-success font-semibold text-success-content'
-                                        : 'text-base-content/80 hover:bg-base-200 hover:text-base-content'
-                                }`}
-                            >
-                                {item.label}
-                            </Link>
-                        </li>
-                    ))}
+                    {menuItems.map((item) => {
+                        const Icon = item.icon;
+
+                        return (
+                            <li key={item.label} className="w-full">
+                                <Link
+                                    href={item.href}
+                                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 transition-all duration-200 ${
+                                        url === item.href
+                                            ? 'bg-success font-semibold text-success-content shadow-md'
+                                            : 'text-base-content/80 hover:bg-base-200 hover:text-base-content'
+                                    }`}
+                                >
+                                    <span
+                                        className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                                            url === item.href
+                                                ? 'bg-success-content/15 text-success-content'
+                                                : 'bg-base-200 text-base-content/70'
+                                        }`}
+                                    >
+                                        <Icon size={18} strokeWidth={2.2} />
+                                    </span>
+                                    <span className="text-sm font-medium tracking-[0.01em]">{item.label}</span>
+                                </Link>
+                            </li>
+                        );
+                    })}
                 </ul>
             </div>
         </aside>
